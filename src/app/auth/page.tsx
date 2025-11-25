@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { createProfile } from '@/lib/supabase-queries';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -24,9 +25,18 @@ export default function AuthPage() {
     // Escutar mudanças de autenticação
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Criar perfil se for novo usuário
+        try {
+          await createProfile(session.user.id, session.user.email?.split('@')[0] || 'Usuário', session.user.email!);
+        } catch (error) {
+          console.error('Erro ao criar perfil:', error);
+        }
         router.push('/dashboard');
+      }
+      if (event === 'SIGNED_OUT') {
+        router.push('/auth');
       }
     });
 

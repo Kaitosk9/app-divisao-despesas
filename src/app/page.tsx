@@ -32,14 +32,14 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/dashboard"
+              href="/auth"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
             >
               Começar Agora
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              href="/groups"
+              href="/auth"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-xl font-semibold border-2 border-gray-200 hover:border-violet-300 hover:shadow-md transition-all"
             >
               Ver Grupos
@@ -119,7 +119,7 @@ export default function Home() {
             Junte-se a milhares de usuários que já dividem despesas de forma inteligente
           </p>
           <Link
-            href="/dashboard"
+            href="/auth"
             className="inline-flex items-center gap-2 bg-white text-violet-600 px-8 py-4 rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all"
           >
             Criar Conta Grátis
