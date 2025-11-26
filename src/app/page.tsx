@@ -1,10 +1,31 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, Zap, Shield, Smartphone, TrendingUp } from 'lucide-react';
 import { GROUP_TYPES } from '@/lib/constants';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function Home() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Verificar se usuário está autenticado
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsAuthenticated(!!user);
+    });
+  }, []);
+
+  const handleVerGrupos = () => {
+    if (isAuthenticated) {
+      router.push('/groups');
+    } else {
+      router.push('/auth?mode=login');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
       {/* Hero Section */}
@@ -32,18 +53,18 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/auth"
+              href="/auth?mode=signup"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
             >
               Começar Agora
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link
-              href="/auth"
+            <button
+              onClick={handleVerGrupos}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-xl font-semibold border-2 border-gray-200 hover:border-violet-300 hover:shadow-md transition-all"
             >
               Ver Grupos
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -119,7 +140,7 @@ export default function Home() {
             Junte-se a milhares de usuários que já dividem despesas de forma inteligente
           </p>
           <Link
-            href="/auth"
+            href="/auth?mode=signup"
             className="inline-flex items-center gap-2 bg-white text-violet-600 px-8 py-4 rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all"
           >
             Criar Conta Grátis
