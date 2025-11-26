@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -23,6 +23,17 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
+
+  // Verificar se usuário já está logado ao carregar a página
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace('/dashboard');
+      }
+    };
+    checkSession();
+  }, [router]);
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -93,9 +104,11 @@ export default function AuthPage() {
         return;
       }
 
-      // Login OK → ir para o dashboard
-      router.push('/dashboard');
-      router.refresh();
+      if (data?.session) {
+        // Login bem-sucedido - redirecionar para dashboard
+        console.log('Login bem-sucedido, redirecionando para dashboard...');
+        window.location.href = '/dashboard';
+      }
     } catch (err) {
       console.error('Erro ao fazer login:', err);
       setError('Erro ao fazer login. Tente novamente.');
@@ -175,9 +188,8 @@ export default function AuthPage() {
         }
 
         // Sucesso - redirecionar para dashboard
-        console.log('Conta criada com sucesso:', data.user.email);
-        router.push('/dashboard');
-        router.refresh();
+        console.log('Conta criada com sucesso, redirecionando para dashboard...');
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       console.error('Erro ao criar conta:', err);
@@ -459,36 +471,6 @@ export default function AuthPage() {
             </form>
           )}
         </div>
-
-        {/* Cenários de teste */}
-        {/* 
-          CENÁRIOS DE TESTE MANUAL:
-          
-          1. CRIAR NOVA CONTA (e-mail não usado):
-             - Preencher todos os campos com e-mail novo
-             - Aceitar termos
-             - Clicar em "Criar conta"
-             - Resultado esperado: 
-               * Se confirmação de e-mail estiver DESABILITADA no Supabase: redireciona para /dashboard
-               * Se confirmação de e-mail estiver HABILITADA no Supabase: mostra mensagem verde pedindo para verificar e-mail
-          
-          2. CRIAR CONTA COM E-MAIL JÁ CADASTRADO:
-             - Usar e-mail que já existe no banco
-             - Resultado esperado: mensagem "Este e-mail já está cadastrado. Tente fazer login."
-          
-          3. LOGIN COM CREDENCIAIS CORRETAS:
-             - Usar e-mail e senha válidos
-             - Resultado esperado: redireciona para /dashboard
-          
-          4. LOGIN COM CREDENCIAIS INCORRETAS:
-             - Usar e-mail ou senha errados
-             - Resultado esperado: mensagem "E-mail ou senha incorretos. Verifique e tente novamente."
-          
-          5. RECUPERAR SENHA:
-             - Inserir e-mail no campo de login
-             - Clicar em "Esqueceu sua senha?"
-             - Resultado esperado: mensagem "E-mail de recuperação enviado! Verifique sua caixa de entrada."
-        */}
       </div>
     </div>
   );
