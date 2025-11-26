@@ -77,41 +77,30 @@ export default function AuthPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    // Validações básicas
     if (!email || !password) {
       setError('Por favor, preencha todos os campos');
       return;
     }
-
     if (!validateEmail(email)) {
       setError('Por favor, insira um e-mail válido');
       return;
     }
-
     setLoading(true);
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
-
       if (error) {
         console.error('Erro de login:', error);
         setError(translateError(error));
-        setLoading(false);
         return;
       }
-
-      if (data?.session) {
-        // Login bem-sucedido - redirecionar para dashboard
-        console.log('Login bem-sucedido, redirecionando para dashboard...');
-        window.location.href = '/dashboard';
-      }
+      router.replace('/dashboard');
     } catch (err) {
       console.error('Erro ao fazer login:', err);
       setError('Erro ao fazer login. Tente novamente.');
+    } finally {
       setLoading(false);
     }
   };
