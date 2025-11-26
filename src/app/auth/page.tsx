@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
   
@@ -24,17 +25,15 @@ export default function AuthPage() {
   const [acceptTerms, setAcceptTerms] = useState(false);
 
   // Verificar se usuário já está logado ao carregar a página
-useEffect(() => {
-  const checkSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      // Se já estiver logado, manda direto pro dashboard
-      window.location.href = '/dashboard';
-    }
-  };
-  checkSession();
-}, []);
-
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace('/dashboard');
+      }
+    };
+    checkSession();
+  }, [router]);
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -88,26 +87,22 @@ useEffect(() => {
     }
     setLoading(true);
     try {
-  const { error } = await supabase.auth.signInWithPassword({
-    email: email.trim(),
-    password,
-  });
-
-  if (error) {
-    console.error('Erro de login:', error);
-    setError(translateError(error));
-    return;
-  }
-
-  // Login deu certo → força ir pro dashboard
-  window.location.href = '/dashboard';
-} catch (err) {
-  console.error('Erro ao fazer login:', err);
-  setError('Erro ao fazer login. Tente novamente.');
-} finally {
-  setLoading(false);
-}
-
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) {
+        console.error('Erro de login:', error);
+        setError(translateError(error));
+        return;
+      }
+      router.replace('/dashboard');
+    } catch (err) {
+      console.error('Erro ao fazer login:', err);
+      setError('Erro ao fazer login. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
